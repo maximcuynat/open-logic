@@ -5,6 +5,12 @@ source "$(dirname "$0")/lib.sh"
 cd "$ROOT_DIR"
 
 version="${1:-$(project_version)}"
+
+templates="$(export_templates_dir)"
+for t in macos.zip windows_release_x86_64.exe linux_release.x86_64 web_nothreads_release.zip; do
+  [[ -f "$templates/$t" ]] || die "missing export template $templates/$t
+       Install them from the Godot editor: Editor > Manage Export Templates > Download and Install"
+done
 out="build/release"
 rm -rf build/export "$out"
 mkdir -p build/export/{macos,windows,linux,web} "$out"

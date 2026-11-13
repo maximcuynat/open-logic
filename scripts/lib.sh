@@ -19,3 +19,13 @@ project_version() {
 godot_template_version() {
   "$GODOT" --version | sed -E 's/^([0-9]+\.[0-9]+(\.[0-9]+)?\.[a-z0-9]+).*/\1/'
 }
+
+# Directory holding the export templates for the current Godot version.
+export_templates_dir() {
+  local tv; tv="$(godot_template_version)"
+  if [[ "$(uname)" == Linux ]]; then
+    echo "${XDG_DATA_HOME:-$HOME/.local/share}/godot/export_templates/$tv"
+  else
+    echo "$HOME/Library/Application Support/Godot/export_templates/$tv"
+  fi
+}

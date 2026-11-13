@@ -28,9 +28,7 @@ check zip       zip       1 "should ship with macOS"
 
 info "Export templates"
 if [[ -x "$GODOT" ]]; then
-  tv="$(godot_template_version)"
-  tdir="$HOME/Library/Application Support/Godot/export_templates/$tv"
-  [[ "$(uname)" == Linux ]] && tdir="${XDG_DATA_HOME:-$HOME/.local/share}/godot/export_templates/$tv"
+  tdir="$(export_templates_dir)"
   if [[ -d "$tdir" ]]; then
     printf '  \033[32mok\033[0m       %s\n' "$tdir"
   else
