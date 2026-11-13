@@ -68,7 +68,6 @@ func draw() -> void:
 		return
 	for segment in _preview():
 		view.draw_segment(segment, view.theme_colors.preview)
-	view.draw_node_dot(_start, view.theme_colors.preview)
 
 
 func cancel() -> void:

@@ -7,6 +7,7 @@ func _initialize() -> void:
 	var main: Node = load("res://src/editor/main.tscn").instantiate()
 	root.add_child(main)
 	await process_frame
+	main.call("_new_document")  # ignore any autosaved circuit
 	var commands: CircuitCommands = main.get("_commands")
 	commands.add_wires(WireRouter.route(Vector2i(-20, -8), Vector2i(-4, 6)))
 	commands.add_wires(WireRouter.route(Vector2i(-4, 6), Vector2i(14, -2), false))

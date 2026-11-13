@@ -8,3 +8,6 @@
   `rendering/textures/vram_compression/import_etc2_astc=true` in project.godot.
 - Put a `.gdignore` in non-game folders (`docs/`) so Godot does not import their images.
 - Fail fast on missing export templates instead of letting Godot print a cryptic list.
+- Claude: never leave the session cwd in a subfolder (`cd build`): the user's `!`
+  commands run there too (`make release` became "Nothing to be done"). Use a
+  subshell `( cd x && ... )` or absolute paths.

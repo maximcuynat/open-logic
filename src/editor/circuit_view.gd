@@ -114,22 +114,24 @@ func _draw() -> void:
 	for wire in circuit.get_wires():
 		var color := theme_colors.selected if wire.equals(selected_wire) else theme_colors.wire
 		draw_segment(wire, color)
-		draw_node_dot(wire.a, color)
-		draw_node_dot(wire.b, color)
 	_tool.draw()
-	draw_arc(Grid.to_world(mouse_cell()), 3.0, 0.0, TAU, 16, theme_colors.cursor, 1.0, true)
+	_draw_cursor()
 
 
+## Draws [param segment] as a crisp filled rectangle with square ends.
 func draw_segment(segment: WireSegment, color: Color) -> void:
-	draw_line(Grid.to_world(segment.a), Grid.to_world(segment.b), color, _wire_width(), true)
+	draw_rect(WireGeometry.segment_rect(segment, _wire_width()), color, true)
 
 
-func draw_node_dot(cell: Vector2i, color: Color) -> void:
-	draw_circle(Grid.to_world(cell), _wire_width() * 0.9, color)
-
-
+## Wire thickness in world units: a quarter of a cell, at least 1.5 screen pixels.
 func _wire_width() -> float:
-	return maxf(3.0, 1.5 / camera.zoom.x)
+	return maxf(Grid.CELL_SIZE / 4.0, 1.5 / camera.zoom.x)
+
+
+func _draw_cursor() -> void:
+	var size := Vector2(7, 7) / camera.zoom.x
+	var rect := Rect2(Grid.to_world(mouse_cell()) - size / 2.0, size)
+	draw_rect(rect, theme_colors.cursor, false, 1.0 / camera.zoom.x)
 
 
 func _visible_world_rect() -> Rect2:

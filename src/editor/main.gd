@@ -14,6 +14,7 @@ enum MenuId {
 	TOOL_WIRE,
 	TOOL_SELECT,
 	RESET_VIEW,
+	TOGGLE_FULLSCREEN,
 	ABOUT,
 }
 
@@ -112,6 +113,7 @@ func _build_ui() -> void:
 			[MenuId.TOOL_SELECT, "Select Tool", KEY_V, -1],
 			[],
 			[MenuId.RESET_VIEW, "Reset View", KEY_0],
+			[MenuId.TOGGLE_FULLSCREEN, "Toggle Fullscreen", KEY_F11, -1],
 		]
 	)
 	_add_menu(menu_bar, "Help", [[MenuId.ABOUT, "About open-logic"]])
@@ -203,8 +205,17 @@ func _on_menu(id: int) -> void:
 			_view.set_tool("select")
 		MenuId.RESET_VIEW:
 			_camera.reset_view()
+		MenuId.TOGGLE_FULLSCREEN:
+			_toggle_fullscreen()
 		MenuId.ABOUT:
 			_about.popup_centered()
+
+
+func _toggle_fullscreen() -> void:
+	var fullscreen := DisplayServer.window_get_mode() == DisplayServer.WINDOW_MODE_FULLSCREEN
+	DisplayServer.window_set_mode(
+		DisplayServer.WINDOW_MODE_MAXIMIZED if fullscreen else DisplayServer.WINDOW_MODE_FULLSCREEN
+	)
 
 
 func _guard_unsaved(action: Callable) -> void:
