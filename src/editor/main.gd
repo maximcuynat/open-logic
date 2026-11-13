@@ -39,6 +39,7 @@ var _autosave_timer: Timer
 
 func _ready() -> void:
 	get_tree().set_auto_accept_quit(false)
+	get_window().theme = AppTheme.build()
 	_build_canvas()
 	_build_ui()
 	_restore_autosave()
@@ -55,7 +56,7 @@ func _notification(what: int) -> void:
 
 
 func _build_canvas() -> void:
-	RenderingServer.set_default_clear_color(CircuitView.Palette.new().background)
+	RenderingServer.set_default_clear_color(Palette.CANVAS_BG)
 	_camera = CameraController.new()
 	add_child(_camera)
 	_view = CircuitView.new()
@@ -126,6 +127,7 @@ func _build_ui() -> void:
 	var bar := PanelContainer.new()
 	root.add_child(bar)
 	_status = Label.new()
+	_status.add_theme_color_override("font_color", Palette.UI_TEXT_DIM)
 	bar.add_child(_status)
 
 	_file_dialog = FileDialog.new()

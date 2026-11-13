@@ -6,26 +6,10 @@ signal selection_changed
 signal tool_changed
 
 const HIT_TOLERANCE_PX := 6.0
-const MIN_GRID_SPACING_PX := 10.0
-const MAJOR_EVERY := 8
-
-
-## Palette used by the canvas.
-class Palette:
-	var background := Color("#16181d")
-	var grid_minor := Color(1, 1, 1, 0.05)
-	var grid_major := Color(1, 1, 1, 0.11)
-	var axis := Color(1, 1, 1, 0.2)
-	var wire := Color("#4fc1ff")
-	var selected := Color("#ffb454")
-	var preview := Color(0.31, 0.76, 1.0, 0.55)
-	var cursor := Color(1, 1, 1, 0.35)
-
 
 var circuit: Circuit
 var commands: CircuitCommands
 var camera: CameraController
-var theme_colors := Palette.new()
 
 var selected_wire: WireSegment = null:
 	set(value):
@@ -33,6 +17,14 @@ var selected_wire: WireSegment = null:
 			return
 		selected_wire = value
 		selection_changed.emit()
+		queue_redraw()
+
+## Wire under the cursor, highlighted while the select tool is active.
+var hovered_wire: WireSegment = null:
+	set(value):
+		if value == hovered_wire or (value != null and value.equals(hovered_wire)):
+			return
+		hovered_wire = value
 		queue_redraw()
 
 var active_tool: EditorTool:
@@ -58,6 +50,7 @@ func set_tool(tool_id: String) -> void:
 	if _tool != null:
 		_tool.cancel()
 	_tool = _tools[tool_id]
+	_update_hover()
 	tool_changed.emit()
 	queue_redraw()
 
@@ -91,6 +84,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 		return
 	if event is InputEventMouseMotion:
+		_update_hover()
 		queue_redraw()  # cursor indicator
 	if _tool.handle_input(event):
 		get_viewport().set_input_as_handled()
@@ -99,7 +93,12 @@ func _unhandled_input(event: InputEvent) -> void:
 func _on_circuit_changed() -> void:
 	if selected_wire != null and not circuit.has_wire(selected_wire):
 		selected_wire = null
+	_update_hover()
 	queue_redraw()
+
+
+func _update_hover() -> void:
+	hovered_wire = wire_at_mouse() if _tool is SelectTool else null
 
 
 # --- Drawing -----------------------------------------------------------------
@@ -109,18 +108,26 @@ func _draw() -> void:
 	if circuit == null:
 		return
 	var visible := _visible_world_rect()
-	draw_rect(visible, theme_colors.background)
+	draw_rect(visible, Palette.CANVAS_BG)
 	_draw_grid(visible)
 	for wire in circuit.get_wires():
-		var color := theme_colors.selected if wire.equals(selected_wire) else theme_colors.wire
-		draw_segment(wire, color)
+		draw_segment(wire, _wire_color(wire))
 	_tool.draw()
 	_draw_cursor()
 
 
-## Draws [param segment] as a crisp filled rectangle with square ends.
+## Draws [param segment] as a crisp filled rectangle with square ends. Colours
+## must be opaque so that overlapping segments stay uniform.
 func draw_segment(segment: WireSegment, color: Color) -> void:
 	draw_rect(WireGeometry.segment_rect(segment, _wire_width()), color, true)
+
+
+func _wire_color(wire: WireSegment) -> Color:
+	if wire.equals(selected_wire):
+		return Palette.WIRE_SELECTED
+	if wire.equals(hovered_wire):
+		return Palette.WIRE_HOVER
+	return Palette.WIRE
 
 
 ## Wire thickness in world units: a quarter of a cell, at least 1.5 screen pixels.
@@ -129,9 +136,9 @@ func _wire_width() -> float:
 
 
 func _draw_cursor() -> void:
-	var size := Vector2(7, 7) / camera.zoom.x
+	var size := Vector2(7, 7) / camera.zoom.x + Vector2.ONE * _wire_width()
 	var rect := Rect2(Grid.to_world(mouse_cell()) - size / 2.0, size)
-	draw_rect(rect, theme_colors.cursor, false, 1.0 / camera.zoom.x)
+	draw_rect(rect, Palette.CURSOR, false, 1.0 / camera.zoom.x)
 
 
 func _visible_world_rect() -> Rect2:
@@ -139,28 +146,36 @@ func _visible_world_rect() -> Rect2:
 	return inverse * Rect2(Vector2.ZERO, get_viewport_rect().size)
 
 
+## Minor lines every cell (faded out when zoomed out), major lines every
+## [constant GridStyle.MAJOR_EVERY] cells, and the two axes on top.
 func _draw_grid(visible: Rect2) -> void:
-	var spacing_px := Grid.CELL_SIZE * camera.zoom.x
-	var step := 1
-	while spacing_px * step < MIN_GRID_SPACING_PX:
-		step *= 2
+	var cell_px := Grid.CELL_SIZE * camera.zoom.x
+	var draw_minor := GridStyle.minor_weight(cell_px) > 0.0
 	var first := Grid.snap(visible.position) - Vector2i.ONE
 	var last := Grid.snap(visible.end) + Vector2i.ONE
-	first = Vector2i(floori(first.x / float(step)) * step, floori(first.y / float(step)) * step)
-
-	var minor := PackedVector2Array()
-	var major := PackedVector2Array()
-	for x in range(first.x, last.x + 1, step):
-		var target := major if x % MAJOR_EVERY == 0 else minor
-		target.append(Vector2(x * Grid.CELL_SIZE, visible.position.y))
-		target.append(Vector2(x * Grid.CELL_SIZE, visible.end.y))
-	for y in range(first.y, last.y + 1, step):
-		var target := major if y % MAJOR_EVERY == 0 else minor
-		target.append(Vector2(visible.position.x, y * Grid.CELL_SIZE))
-		target.append(Vector2(visible.end.x, y * Grid.CELL_SIZE))
-	if not minor.is_empty():
-		draw_multiline(minor, theme_colors.grid_minor)
-	if not major.is_empty():
-		draw_multiline(major, theme_colors.grid_major)
-	draw_line(Vector2(visible.position.x, 0), Vector2(visible.end.x, 0), theme_colors.axis)
-	draw_line(Vector2(0, visible.position.y), Vector2(0, visible.end.y), theme_colors.axis)
+	var lines := {
+		GridStyle.LineKind.MINOR: PackedVector2Array(),
+		GridStyle.LineKind.MAJOR: PackedVector2Array(),
+		GridStyle.LineKind.AXIS: PackedVector2Array(),
+	}
+	for x in range(first.x, last.x + 1):
+		var kind := GridStyle.line_kind(x)
+		if kind != GridStyle.LineKind.MINOR or draw_minor:
+			lines[kind].append(Vector2(x * Grid.CELL_SIZE, visible.position.y))
+			lines[kind].append(Vector2(x * Grid.CELL_SIZE, visible.end.y))
+	for y in range(first.y, last.y + 1):
+		var kind := GridStyle.line_kind(y)
+		if kind != GridStyle.LineKind.MINOR or draw_minor:
+			lines[kind].append(Vector2(visible.position.x, y * Grid.CELL_SIZE))
+			lines[kind].append(Vector2(visible.end.x, y * Grid.CELL_SIZE))
+	var colors := {
+		GridStyle.LineKind.MINOR: GridStyle.minor_color(cell_px),
+		GridStyle.LineKind.MAJOR: Palette.GRID_MAJOR,
+		GridStyle.LineKind.AXIS: Palette.GRID_AXIS,
+	}
+	for kind: GridStyle.LineKind in [
+		GridStyle.LineKind.MINOR, GridStyle.LineKind.MAJOR, GridStyle.LineKind.AXIS
+	]:
+		var points: PackedVector2Array = lines[kind]
+		if not points.is_empty():
+			draw_multiline(points, colors[kind])

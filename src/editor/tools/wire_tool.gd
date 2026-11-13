@@ -67,7 +67,7 @@ func draw() -> void:
 	if not _dragging:
 		return
 	for segment in _preview():
-		view.draw_segment(segment, view.theme_colors.preview)
+		view.draw_segment(segment, Palette.WIRE_PREVIEW)
 
 
 func cancel() -> void:

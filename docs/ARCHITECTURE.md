@@ -4,7 +4,7 @@
 src/
 ├─ core/     Pure model. RefCounted classes, no scene tree. Unit-tested.
 └─ editor/   Godot scenes/nodes: rendering, input, menus, files.
-tests/core/  gdUnit4 suites, one per core class.
+tests/       gdUnit4 suites: core/ per core class, editor/ for pure editor helpers.
 tools/       Developer utilities (screenshot renderer).
 scripts/     Local pipeline (doctor, test, smoke, export, release, deploy).
 ```
@@ -32,6 +32,17 @@ headless and makes a later native port (GDExtension) possible, see
 | `circuit_view.gd` | Draws grid and circuit, owns selection, routes input to the active tool |
 | `camera_controller.gd` | Pan and zoom around the cursor |
 | `tools/*.gd` | `EditorTool` subclasses: `WireTool`, `SelectTool` |
+| `palette.gd` | Deep dark palette: the only place where colours are defined |
+| `grid_style.gd` | Grid line hierarchy (minor, major every 8 cells, axes) and zoom fading |
+| `app_theme.gd` | UI theme (panels, menus, buttons, dialogs) built from the palette |
+
+### Rendering rules
+
+- Wires are filled rectangles with square caps (`WireGeometry`), so corners
+  are sharp 90 degree angles.
+- Canvas colours are opaque: overlapping shapes (L corners) stay uniform.
+- Minor grid lines fade out between 18 and 6 screen pixels per cell.
+- Sharp corners everywhere in the UI (no rounded style boxes).
 
 Data flow:
 

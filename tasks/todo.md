@@ -43,3 +43,14 @@
   rejects malformed messages; pre-commit blocks a planted AWS/GitHub token.
 - Not verifiable in the sandbox: GUI interaction, screenshot, exports (no templates
   or no access to them), anything touching GitHub.
+
+# Deep dark theme & rendering polish
+
+- [x] Mock renderer (Python, build/mock) to tune colours before coding: confirmed the
+      darker L corner came from the translucent preview (alpha stacking)
+- [x] Palette: single source of colours, canvas colours opaque (tested)
+- [x] GridStyle: minor/major/axis hierarchy, minor lines fade with zoom (tested)
+- [x] Wire hover highlight in select tool
+- [x] AppTheme: deep dark UI (status bar, popup menus, buttons, dialogs), sharp corners
+- [x] No grey flash at launch: boot splash + default clear colour
+- [ ] Maintainer: `make run` visual check, then `make screenshot`
