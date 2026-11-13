@@ -15,7 +15,8 @@ on the [project board](https://github.com/users/maximcuynat/projects).
 - Component model (position, rotation, pins) in the core
 - NAND gate primitive
 - Input switch and output LED
-- Place, move, rotate and delete components
+- Place, move, rotate and delete components (attached wires follow)
+- Component palette panel
 - Connectivity: compute nets from wires and pins (split wires at T-junctions)
 - File format schema 2 with migration from schema 1
 
@@ -24,6 +25,7 @@ on the [project board](https://github.com/users/maximcuynat/projects).
 - Step / run / pause controls
 - Clock built by the user, plus an optional clock source component
 - Wire colouring by signal state
+- Built-in gate library: NOT, AND, OR, NOR, XOR, XNOR, buffer (labelled rectangles)
 
 ## v0.4 - Subcircuits
 - Turn a selection into a reusable block with named pins
