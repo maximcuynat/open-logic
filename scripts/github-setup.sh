@@ -89,7 +89,15 @@ upsert_ruleset "protect-release-tags" '{
 
 # --- Labels ----------------------------------------------------------------------------
 info "Labels"
-label() { gh label create "$1" --repo "$R" --color "$2" --description "$3" --force >/dev/null; }
+# GitHub occasionally answers 5xx on label updates: retry, then warn and go on.
+label() {
+  local attempt
+  for attempt in 1 2 3; do
+    gh label create "$1" --repo "$R" --color "$2" --description "$3" --force >/dev/null 2>&1 && return 0
+    sleep $((attempt * 2))
+  done
+  warn "could not create/update label '$1' (re-run the script later)"
+}
 label "type:bug"        d73a4a "Something is broken"
 label "type:feature"    a2eeef "New functionality"
 label "type:docs"       0075ca "Documentation"
