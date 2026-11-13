@@ -10,4 +10,5 @@
 - Fail fast on missing export templates instead of letting Godot print a cryptic list.
 - Claude: never leave the session cwd in a subfolder (`cd build`): the user's `!`
   commands run there too (`make release` became "Nothing to be done"). Use a
-  subshell `( cd x && ... )` or absolute paths.
+  subshell `( cd x && ... )` or absolute paths. Repeated twice with `cd build/mock`:
+  ANY command that starts with `cd <subdir> &&` and succeeds moves the session.
