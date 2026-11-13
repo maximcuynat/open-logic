@@ -1,6 +1,9 @@
 # Roadmap
 
-Each version is a GitHub milestone; each bullet is an issue. Progress is tracked
+Each version is a GitHub milestone; each bullet is an issue.
+`scripts/github-setup.sh` matches issues **by exact title**: when you reword a
+bullet, rename the issue too (`gh issue edit <n> --title "..."`), otherwise a
+duplicate issue is created. Progress is tracked
 on the [project board](https://github.com/users/maximcuynat/projects).
 
 ## v0.1 - Grid & wires *(current)*
@@ -17,7 +20,7 @@ on the [project board](https://github.com/users/maximcuynat/projects).
 - Input switch and output LED
 - Place, move, rotate and delete components (attached wires follow)
 - Component palette panel
-- Connectivity: compute nets from wires and pins (split wires at T-junctions)
+- Connectivity: compute nets from wires and pins (T junctions connect, crossings do not)
 - File format schema 2 with migration from schema 1
 
 ## v0.3 - Simulation

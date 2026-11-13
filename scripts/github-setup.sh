@@ -164,5 +164,5 @@ Manual steps (not available in the API):
   - Project https://github.com/users/$OWNER/projects/$project : add a "Roadmap" view
     (Layout: Roadmap, group by Milestone) and a "Board" view (group by Status).
   - Pin the repository on your profile.
-Then: make release BUMP=minor && make deploy-web
+Release flow: make promote && make release BUMP=patch|minor && make deploy-web
 NEXT
