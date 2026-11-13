@@ -1,0 +1,40 @@
+name: Bug report
+description: Something does not work as expected
+labels: ["type:bug", "status:triage"]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: Include what you expected instead.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Select the wire tool
+        2. Drag from ... to ...
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: open-logic version
+      description: Help > About
+      placeholder: v0.1.0
+    validations:
+      required: true
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Platform
+      options: [macOS, Windows, Linux, Web browser]
+    validations:
+      required: true
+  - type: textarea
+    id: file
+    attributes:
+      label: Circuit file (optional)
+      description: Attach or paste the .olc file that triggers the bug.

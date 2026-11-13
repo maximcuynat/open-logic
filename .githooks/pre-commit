@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+# Format check, lint and secret scan on staged changes.
+set -euo pipefail
+
+staged_gd=$(git diff --cached --name-only --diff-filter=ACMR -- '*.gd' | grep -v '^addons/' || true)
+if [[ -n "$staged_gd" ]]; then
+  command -v gdformat >/dev/null || { echo "pre-commit: gdformat missing (make doctor)"; exit 1; }
+  # shellcheck disable=SC2086
+  gdformat --check $staged_gd || { echo "pre-commit: run 'make fmt'"; exit 1; }
+  # shellcheck disable=SC2086
+  gdlint $staged_gd
+fi
+
+if command -v gitleaks >/dev/null; then
+  gitleaks git --staged --redact --no-banner --exit-code 1 \
+    || { echo "pre-commit: potential secret detected, commit aborted"; exit 1; }
+else
+  echo "pre-commit: gitleaks missing, secret scan skipped (make doctor)" >&2
+  exit 1
+fi

@@ -1,0 +1,6 @@
+# gdlint configuration (gdtoolkit 4). Only overrides of the defaults.
+max-line-length: 100
+excluded_directories: !!set
+  .git: null
+  .godot: null
+  addons: null

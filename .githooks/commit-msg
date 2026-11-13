@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+# Enforces Conventional Commits: <type>(<scope>)!: <description>
+set -euo pipefail
+
+msg=$(head -n1 "$1")
+pattern='^(feat|fix|refactor|docs|test|chore|perf|style|build|ci|revert)(\([a-z0-9._/-]+\))?!?: .{1,72}$'
+
+if [[ "$msg" =~ ^(Merge|Revert|fixup!|squash!) ]] || [[ "$msg" =~ $pattern ]]; then
+  exit 0
+fi
+cat >&2 <<HELP
+commit-msg: invalid message
+  "$msg"
+Expected: <type>(<scope>): <description>   (max 72 chars)
+Types:    feat fix refactor docs test chore perf style build ci revert
+Example:  feat(editor): draw wires with L routing
+HELP
+exit 1

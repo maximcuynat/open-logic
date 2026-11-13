@@ -1,0 +1,25 @@
+# Godot
+.godot/
+*.translation
+export_credentials.cfg
+
+# Build & release artifacts
+build/
+
+# gdUnit4 reports
+reports/
+addons/gdUnit4/GdUnitRunner.cfg
+
+# OS / editors
+.DS_Store
+.vscode/
+.idea/
+*.swp
+
+# Secrets (never commit)
+.env
+.env.*
+*.keystore
+
+# Claude Code local state
+.claude/
