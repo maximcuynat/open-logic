@@ -53,4 +53,18 @@ run git push origin main "$tag"
 run gh release create "$tag" build/release/*.zip build/release/SHA256SUMS \
   --title "open-logic $tag" --notes-file "$notes" --verify-tag
 
+# --- Sync develop -----------------------------------------------------------------
+# The release commit lives on main; bring develop up to date (fast-forward only).
+if git show-ref -q --verify refs/heads/develop; then
+  if [[ "$DRY_RUN" == 1 ]]; then
+    printf '  [dry-run] fast-forward develop to main and push it\n'
+  elif git fetch -q . main:develop 2>/dev/null; then
+    git push origin develop
+    git checkout -q develop
+    info "develop fast-forwarded to $tag; you are back on develop"
+  else
+    warn "develop has diverged from main: run 'git checkout develop && git merge main'"
+  fi
+fi
+
 info "Done. Publish the playable Web build with: make deploy-web"

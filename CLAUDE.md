@@ -19,6 +19,8 @@ Godot 4.7 digital logic circuit editor. GPL-3.0. Everything in the repo
 - Static typing everywhere; `gdformat`/`gdlint` must pass (line length 100).
 - Conventional Commits (enforced by `.githooks/commit-msg`). No
   `Co-Authored-By` lines. Commit only when the maintainer asks.
+- Day-to-day work happens on `develop`; `main` only receives releases
+  (`make promote` then `make release`). Never commit directly on `main`.
 - No GitHub Actions (ADR 0003). Releases via `make release`.
 
 ## Sandbox notes

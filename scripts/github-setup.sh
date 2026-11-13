@@ -76,6 +76,11 @@ upsert_ruleset "protect-main" "{
   \"conditions\": {\"ref_name\": {\"include\": [\"~DEFAULT_BRANCH\"], \"exclude\": []}},
   \"rules\": [$main_rules]
 }"
+upsert_ruleset "protect-develop" '{
+  "name": "protect-develop", "target": "branch", "enforcement": "active",
+  "conditions": {"ref_name": {"include": ["refs/heads/develop"], "exclude": []}},
+  "rules": [{"type": "deletion"}, {"type": "non_fast_forward"}]
+}'
 upsert_ruleset "protect-release-tags" '{
   "name": "protect-release-tags", "target": "tag", "enforcement": "active",
   "conditions": {"ref_name": {"include": ["refs/tags/v*"], "exclude": []}},
@@ -98,6 +103,14 @@ label "priority:high"   b60205 "Do next"
 label "priority:low"    c2e0c6 "Nice to have"
 label "status:triage"   ededed "Needs triage"
 label "good first issue" 7057ff "Good for newcomers"
+label "status:duplicate" cfd3d7 "Already reported"
+label "status:wontfix"   ffffff "Will not be worked on"
+label "status:question"  d876e3 "More information needed"
+
+# GitHub's default labels duplicate the scheme above.
+for default in bug documentation duplicate enhancement "help wanted" invalid question wontfix; do
+  gh label delete "$default" --repo "$R" --yes >/dev/null 2>&1 && info "  removed default label '$default'" || true
+done
 
 # --- Milestones and issues from docs/ROADMAP.md ------------------------------------------
 info "Milestones and roadmap issues"

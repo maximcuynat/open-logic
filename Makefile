@@ -9,7 +9,7 @@ export GODOT
 GD_SOURCES := src tests tools
 
 .DEFAULT_GOAL := help
-.PHONY: help doctor hooks import fmt fmt-check lint test smoke check run screenshot export release deploy-web clean
+.PHONY: help doctor hooks import fmt fmt-check lint test smoke check run screenshot export promote release deploy-web clean
 
 help: ## Show this help
 	@awk 'BEGIN {FS = ":.*## "} /^[a-zA-Z_-]+:.*## / {printf "  \033[36m%-12s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
@@ -49,6 +49,9 @@ screenshot: import ## Render docs/images/screenshot.png
 
 export: import ## Export all platforms into build/ (VERSION=x.y.z optional)
 	@scripts/export.sh $(VERSION)
+
+promote: ## Fast-forward main to develop (run before a release)
+	@scripts/promote.sh
 
 release: ## Cut a release: make release BUMP=patch|minor|major [DRY_RUN=1]
 	@BUMP=$(BUMP) DRY_RUN=$(DRY_RUN) scripts/release.sh

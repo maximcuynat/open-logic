@@ -19,11 +19,24 @@ make hooks    # installs .githooks (format, lint, secret scan, commit message)
 
 1. Pick or open an issue; each issue belongs to a milestone of the
    [roadmap](docs/ROADMAP.md).
-2. Branch from `main`: `feat/<short-name>`, `fix/<short-name>`...
+2. Work on `develop` (see [Branches](#branches)); for larger work, branch from
+   it: `feat/<short-name>`, `fix/<short-name>`...
 3. **Write a failing test first** for any change in `src/core/`.
 4. Run `make check` (lint + tests + smoke test). There is no hosted CI: this
    command is the gate and must pass before pushing.
-5. Open a pull request using the template, then squash-merge (linear history).
+5. Open a pull request **against `develop`** using the template, then
+   squash-merge (linear history).
+
+## Branches
+
+| Branch | Role |
+|---|---|
+| `develop` | Integration branch: all day-to-day work lands here |
+| `main` | Released code only; every commit on it is (or leads to) a tagged release |
+| `feat/*`, `fix/*` | Optional short-lived branches off `develop` |
+
+`main` only moves forward by fast-forward from `develop` (`make promote`), then
+`make release` adds the release commit and tag and fast-forwards `develop` back.
 
 ## Commit messages
 
